@@ -1,44 +1,62 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
+import { StackNavigator } from 'react-navigation'
 import React, { Component } from 'react'
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import MainScreen from './components/main-screen/main-screen'
+import Options from './components/options/options'
+import Search from './components/search/search'
+import { Platform, StyleSheet, Text, View, Button } from 'react-native'
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' + 'Shake or press menu button for dev menu'
-})
-
-export default class App extends Component {
+class ModalScreen extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>一条龙热更新服务</Text>
-        <Text style={styles.instructions}>我觉得其实OK</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 30 }}>This is a modal!</Text>
+        <Button onPress={() => this.props.navigation.goBack()} title="Dismiss" />
       </View>
     )
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF'
+const MainStack = StackNavigator(
+  {
+    Options: {
+      screen: Options
+    },
+    Main: {
+      screen: MainScreen
+    }
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5
+  {
+    initialRouteName: 'Main',
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: '#f4511e'
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontSize: 18
+      }
+    }
   }
-})
+)
+
+const RootStack = StackNavigator(
+  {
+    Main: {
+      screen: MainStack
+    },
+    MyModal: {
+      screen: ModalScreen
+    },
+    Search: {
+      screen: Search
+    }
+  },
+  {
+    headerMode: 'none'
+  }
+)
+export default class App extends React.Component {
+  render() {
+    return <RootStack />
+  }
+}

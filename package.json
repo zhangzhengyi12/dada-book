@@ -5,11 +5,17 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "dev":"react-native run-android & react-devtools"
+    "dev": "react-native run-android & react-devtools"
   },
   "dependencies": {
+    "cheerio-eq": "^1.0.1",
+    "cheerio-without-node-native": "^0.20.2",
     "react": "16.2.0",
-    "react-native": "0.53.0"
+    "react-native": "0.53.0",
+    "react-native-indicator": "^0.7.0",
+    "react-native-loading-w": "^1.0.0",
+    "react-native-refresh-list-view": "^1.0.7",
+    "react-navigation": "^1.0.3"
   },
   "devDependencies": {
     "babel-jest": "22.2.2",
