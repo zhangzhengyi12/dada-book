@@ -5,6 +5,8 @@ import BookPreView from '../../base/book-preview'
 import SearchStateText from '../../base/search-state-text'
 import { searchBookList } from '../../api/search'
 import { EatBeanLoader } from 'react-native-indicator'
+import { openBook } from '../../redux/actions/actions'
+import { connect } from 'react-redux'
 var Dimensions = require('Dimensions')
 
 const Vheight = Dimensions.get('window').height
@@ -25,8 +27,7 @@ const SEARCH_STATE_MAP = {
   loading: 1,
   noResult: 2
 }
-
-export default class Search extends Component {
+class Search extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -124,7 +125,19 @@ export default class Search extends Component {
     )
   }
   _renderBook(flatbookData) {
-    return <BookPreView book={flatbookData.item} key={flatbookData.index} />
+    return (
+      <BookPreView
+        onSelect={() => {
+          this._selectBook(flatbookData.item)
+        }}
+        book={flatbookData.item}
+        key={flatbookData.index}
+      />
+    )
+  }
+  _selectBook(book) {
+    this.props.dispatch(openBook(book))
+    this.props.navigation.navigate('Reader', { book })
   }
   _onSearchError() {
     this.setState({
@@ -178,7 +191,7 @@ export default class Search extends Component {
               data={this.state.books}
               getItemLayout={(data, index) => ({ length: 150, offset: 150 * index, index })}
               keyExtractor={(item, index) => String(index)}
-              renderItem={this._renderBook}
+              renderItem={this._renderBook.bind(this)}
               refreshing={this.state.isRefreshing}
               onRefresh={() => this._refresh()}
               ListFooterComponent={() => this._GetCurrentView()}
@@ -243,3 +256,5 @@ const styles = StyleSheet.create({
     paddingBottom: 5
   }
 })
+
+export default connect()(Search)

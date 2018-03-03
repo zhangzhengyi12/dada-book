@@ -8,14 +8,27 @@
     "dev": "react-native run-android & react-devtools"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "buffer": "^5.1.0",
     "cheerio-eq": "^1.0.1",
     "cheerio-without-node-native": "^0.20.2",
+    "iconv-lite": "^0.4.19",
     "react": "16.2.0",
     "react-native": "0.53.0",
+    "react-native-device-battery": "^1.0.0",
     "react-native-indicator": "^0.7.0",
+    "react-native-keyevent": "^0.1.1",
     "react-native-loading-w": "^1.0.0",
     "react-native-refresh-list-view": "^1.0.7",
-    "react-navigation": "^1.0.3"
+    "react-native-root-toast": "^3.0.1",
+    "react-native-sqlite-storage": "^3.3.4",
+    "react-native-system-setting": "^1.2.3",
+    "react-native-vector-icons": "^4.5.0",
+    "react-navigation": "^1.0.3",
+    "react-redux": "^5.0.7",
+    "redux": "^3.7.2",
+    "redux-logger": "^3.0.6",
+    "stream": "0.0.2"
   },
   "devDependencies": {
     "babel-jest": "22.2.2",

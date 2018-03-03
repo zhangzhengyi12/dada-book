@@ -3,18 +3,10 @@ import React, { Component } from 'react'
 import MainScreen from './components/main-screen/main-screen'
 import Options from './components/options/options'
 import Search from './components/search/search'
+import { Provider } from 'react-redux'
+import Reader from './components/reader/reader'
+import store from './redux/store/store'
 import { Platform, StyleSheet, Text, View, Button } from 'react-native'
-
-class ModalScreen extends React.Component {
-  render() {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 30 }}>This is a modal!</Text>
-        <Button onPress={() => this.props.navigation.goBack()} title="Dismiss" />
-      </View>
-    )
-  }
-}
 
 const MainStack = StackNavigator(
   {
@@ -44,11 +36,11 @@ const RootStack = StackNavigator(
     Main: {
       screen: MainStack
     },
-    MyModal: {
-      screen: ModalScreen
-    },
     Search: {
       screen: Search
+    },
+    Reader: {
+      screen: Reader
     }
   },
   {
@@ -57,6 +49,11 @@ const RootStack = StackNavigator(
 )
 export default class App extends React.Component {
   render() {
-    return <RootStack />
+    return (
+      <Provider store={store}>
+        <RootStack />
+      </Provider>
+    )
   }
 }
+

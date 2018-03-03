@@ -1,6 +1,8 @@
 package com.dadabook;
 
 import com.facebook.react.ReactActivity;
+import android.view.KeyEvent;
+import com.github.kevinejohn.keyevent.KeyEventModule; 
 
 public class MainActivity extends ReactActivity {
 
@@ -12,4 +14,12 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         return "dadaBook";
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        KeyEventModule.getInstance().onKeyDownEvent(keyCode,event);
+        super.onKeyDown(keyCode, event);
+        return true;
+    }
+
 }

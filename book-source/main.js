@@ -25,14 +25,16 @@ export default (sourceList = [
         .find('span')
         .eq(1)
         .text(),
-    bookUrl: '@.result-game-item-title-link@0@abs:href',
+    bookUrl: book => book.find('.result-game-item-title-link').attr('href'),
     books: '.result-item',
-    chapterName: '@@@',
-    chapterUrl: '@@@abs:href',
-    chapters: '#list dl dd a',
+    chapterName: chapter => chapter.find('a').text(),
+    chapterUrl: function(chapter) {
+      return this.host + chapter.find('a').attr('href')
+    },
+    chapters: '#list dl dd ',
     checked: true,
-    content: '@#content@0@',
-    contentReplace: '[{"first":"\\\\(.*?高速全文字在线阅读！","second":""}]',
+    content: 'div#content',
+    contentReplace: ['Ｅ小┡说Ｗｗ』Ｗ．ㄟ１ＸＩＡＯＳＨＵＯ．ＣＯＭ'],
     enabled: true,
     encoding: 'gbk',
     host: 'http://www.1xiaoshuo.com',
@@ -46,6 +48,7 @@ export default (sourceList = [
     searchUrlInner: 'https://www.zwda.com/search.php',
     searchKey: 'keyword',
     searchPageKey: 'page',
-    type: 0
+    type: 0,
+    id:666
   }
 ])
