@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, StyleSheet, Text, View, TextInput, TouchableNativeFeedback, FlatList, Image, Picker } from 'react-native'
+import { Platform, StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Image, Picker } from 'react-native'
 import sourcesList from '../../book-source/main'
 import BookPreView from '../../base/book-preview'
 import SearchStateText from '../../base/search-state-text'
@@ -154,13 +154,13 @@ class Search extends Component {
     return (
       <View>
         <View style={styles.searchBar}>
-          <TouchableNativeFeedback
+          <TouchableOpacity
             onPress={() => {
-              this.props.navigation.goBack()
+              this.props.navigation.navigate('Main')
             }}
           >
             <Image source={require('./back.png')} style={styles.back} />
-          </TouchableNativeFeedback>
+          </TouchableOpacity>
           <TextInput
             style={styles.searchInput}
             placeholder="搜索你想看的爽文"

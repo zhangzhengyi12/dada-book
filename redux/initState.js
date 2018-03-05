@@ -1,4 +1,4 @@
 export default {
   currentBook: {},
-  booklib: []
+  bookLib: []
 }

@@ -1,9 +1,24 @@
 import React, { Component } from 'react'
-import { Platform, StyleSheet, Text, View, BackHandler, StatusBar, LayoutAnimation, TouchableOpacity, Modal, FlatList } from 'react-native'
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  BackHandler,
+  StatusBar,
+  LayoutAnimation,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  BackAndroid
+} from 'react-native'
 import BookPage from '../../base/book-page'
 import DeviceBattery from 'react-native-device-battery'
 import SystemSetting from 'react-native-system-setting'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import store from 'react-native-simple-store'
+import { connect } from 'react-redux'
+import { saveBookToLib } from '../../redux/actions/actions'
 import ReaderSet from '../reader-set/reader-set'
 import { getBookChapterList, getBookChapter } from '../../api/bookContent'
 import { formatBookChapterContent } from '../../common/js/format'
@@ -98,6 +113,22 @@ class Reader extends Component {
       const volume = data
     })
   }
+  _timeOutSaveBook() {
+    this.timer = setInterval(() => {
+      let bookLib = this.props.bookLib
+      let index = bookLib.findIndex(item => {
+        return item.url === this.state.url
+      })
+      bookLib[index] === this.state.book
+      let str = JSON.stringify(bookLib)
+      store.update('bookLib', {
+        bookLib: str
+      })
+    }, 10000)
+  }
+  _removeTimeOutSaveBook() {
+    clearInterval(this.timer)
+  }
   componentDidMount() {
     KeyEvent.onKeyDownListener(keyEvent => {
       if (this.state.chapterDetail) {
@@ -110,11 +141,10 @@ class Reader extends Component {
       }
     })
     BackHandler.addEventListener('hardwareBackPress', () => {
-      this.setState({
-        showSaveModal:true
-      })
+      this._onBack()
       return true
     })
+    this._timeOutSaveBook()
   }
   componentWillMount() {
     let { book } = this.props.navigation.state.params
@@ -123,8 +153,30 @@ class Reader extends Component {
         book
       })
     )
+    // 尝试获取阅读器设置
+    store.get('ReaderOptions').then(res => {
+      if (res.toString() == {}.toString()) return
+      res = JSON.parse(res)
+      this.setState({
+        ReaderOptions: res
+      })
+    })
+
     //获取章节列表
     if (book.chapterList && book.chapterList.length !== 0) {
+      if (!book.chapters[book.currentChapter]) {
+        this._loadMoreChapter(book.currentChapter).then(res => {
+          let chapterDetail = this.transformChapterDetail(res)
+          this.setState({
+            chapterDetail
+          })
+        })
+      } else {
+        let chapterDetail = this.transformChapterDetail(book.chapters[book.currentChapter])
+        this.setState({
+          chapterDetail
+        })
+      }
     } else {
       this.getBookChapterListData(book)
     }
@@ -137,6 +189,9 @@ class Reader extends Component {
     setInterval(() => {
       this.getCurrentTime()
     }, 10000)
+  }
+  componentWillUnmount() {
+    this._removeTimeOutSaveBook()
   }
   _RenderCachePercent() {
     if (!this.state.caching) {
@@ -178,7 +233,13 @@ class Reader extends Component {
       this.setState({
         ReaderOptions
       })
+      this._updateReaderOptions()
     }
+  }
+  _updateReaderOptions() {
+    let options = JSON.stringify(this.state.ReaderOptions)
+    console.log(options + 'yes up op');
+    store.update('ReaderOptions',options)
   }
   _ChangeColorTheme(index) {
     let ReaderOptions = this.state.ReaderOptions
@@ -186,6 +247,7 @@ class Reader extends Component {
     this.setState({
       ReaderOptions
     })
+    this._updateReaderOptions()
   }
   _increaseFont() {
     let ReaderOptions = this.state.ReaderOptions
@@ -205,6 +267,7 @@ class Reader extends Component {
     this.setState({
       chapterDetail
     })
+    this._updateReaderOptions()
   }
   _narrowFont() {
     let ReaderOptions = this.state.ReaderOptions
@@ -226,6 +289,7 @@ class Reader extends Component {
       ReaderOptions,
       chapterDetail
     })
+    this._updateReaderOptions()
   }
   _renderCtrlBtn(name, iconName, color, clickHandle) {
     return (
@@ -251,7 +315,11 @@ class Reader extends Component {
         <View style={ctrlBarStyles.TopBar}>
           <View style={ctrlBarStyles.mainBar}>
             {!this.state.showBookChaperList && (
-              <TouchableOpacity onPress={()=>{this._onBack()}}>
+              <TouchableOpacity
+                onPress={() => {
+                  this._onBack()
+                }}
+              >
                 <Icon
                   style={{ paddingBottom: 5, paddingTop: 5, paddingLeft: 10, paddingRight: 10 }}
                   name="chevron-left"
@@ -445,9 +513,14 @@ class Reader extends Component {
   }
   _onBack() {
     // 需要检测是否已加入
-    this.setState({
-      showSaveModal:true
-    })
+    let index = this.props.bookLib.findIndex(v => this.state.book.url === v.url)
+    if (index === -1) {
+      this.setState({
+        showSaveModal: true
+      })
+    } else {
+      this._back()
+    }
   }
   _back() {
     this.props.navigation.goBack()
@@ -498,7 +571,9 @@ class Reader extends Component {
     )
   }
   _saveBookToLib() {
-    console.log(this.state.book);
+    // 尝试插入
+    this.props.dispatch(saveBookToLib(this.state.book))
+    this._back()
   }
   _DownLoadBook(x) {
     if (x > this.state.book.chapterList.length) {
@@ -584,19 +659,32 @@ class Reader extends Component {
           animationType={'none'}
           transparent={true}
         >
-          <TouchableOpacity style={styles.modal} activeOpacity={1} onPress={() => {
-            this.setState({
-            showSaveModal:false
-          })}}>
+          <TouchableOpacity
+            style={styles.modal}
+            activeOpacity={1}
+            onPress={() => {
+              this.setState({
+                showSaveModal: false
+              })
+            }}
+          >
             <View style={styles.innerView}>
               <Text style={styles.modalTitle}>加入书架</Text>
               <Text style={styles.modalBody}>是否将该爽文加入到书架?</Text>
               <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={() => { this._back() }}> 
-                  <Text style={styles.modalButton} >垃圾爽文不加</Text>
-                </TouchableOpacity>  
-               <TouchableOpacity onPress={()=>{this._saveBookToLib()}}> 
-                <Text style={styles.modalButton} >加他妈的</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    this._back()
+                  }}
+                >
+                  <Text style={styles.modalButton}>垃圾爽文不加</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    this._saveBookToLib()
+                  }}
+                >
+                  <Text style={styles.modalButton}>加他妈的</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -702,4 +790,7 @@ const styles = StyleSheet.create({
   }
 })
 
-export default Reader
+const mapStateToProps = state => ({
+  bookLib: state.dadaBook.bookLib
+})
+export default connect(mapStateToProps)(Reader)
