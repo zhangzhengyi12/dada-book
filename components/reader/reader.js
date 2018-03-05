@@ -238,7 +238,6 @@ class Reader extends Component {
   }
   _updateReaderOptions() {
     let options = JSON.stringify(this.state.ReaderOptions)
-    console.log(options + 'yes up op');
     store.update('ReaderOptions',options)
   }
   _ChangeColorTheme(index) {
